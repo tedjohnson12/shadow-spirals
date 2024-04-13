@@ -6,52 +6,108 @@
 \begin{document}
 
 % Title
-\title{An open source scientific article}
+\title{Spirals launched by a planet in a shadowed disk}
 
 % Author list
-\author{@tedjohnson12}
+\author{Ted Johnson}
 
-% Abstract with filler text
 \begin{abstract}
-    Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
-    Ut purus elit, vestibulum ut, placerat ac, adipiscing vitae, felis.
-    Curabitur dictum gravida mauris, consectetuer id, vulputate a, magna.
-    Donec vehicula augue eu neque, morbi tristique senectus et netus et.
-    Mauris ut leo, cras viverra metus rhoncus sem, nulla et lectus vestibulum.
-    Phasellus eu tellus sit amet tortor gravida placerat.
-    Integer sapien est, iaculis in, pretium quis, viverra ac, nunc.
-    Praesent eget sem vel leo ultrices bibendum.
-    Aenean faucibus, morbi dolor nulla, malesuada eu, pulvinar at, mollis ac.
-    Curabitur auctor semper nulla donec varius orci eget risus.
-    Duis nibh mi, congue eu, accumsan eleifend, sagittis quis, diam.
-    Duis eget orci sit amet orci dignissim rutrum.
+    The presence of a planet in a protoplanetary disk is known to launch pressure and
+    density spirals in the disk. A disk that is shadowed (via an optically thick inclined inner disk)
+    will change the shape of these spirals.
 \end{abstract}
 
-% Main body with filler text
 \section{Introduction}
 \label{sec:intro}
 
-Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
-Ut purus elit, vestibulum ut, placerat ac, adipiscing vitae, felis.
-Curabitur dictum gravida mauris, consectetuer id, vulputate a, magna.
-Donec vehicula augue eu neque, morbi tristique senectus et netus et.
-Mauris ut leo, cras viverra metus rhoncus sem, nulla et lectus vestibulum.
-Phasellus eu tellus sit amet tortor gravida placerat.
-Integer sapien est, iaculis in, pretium quis, viverra ac, nunc.
-Praesent eget sem vel leo ultrices bibendum.
-Aenean faucibus, morbi dolor nulla, malesuada eu, pulvinar at, mollis ac.
-Curabitur auctor semper nulla donec varius orci eget risus.
-Duis nibh mi, congue eu, accumsan eleifend, sagittis quis, diam.
-Duis eget orci sit amet orci dignissim rutrum.
+A planet embedded in a protoplanetary disk will launch a spiral similar to those seen in galaxies.
+Sound waves excited by the planet travel in the rotating disk at the local sound speed, but also follow
+the Keplerian rotation of the disk material. This creates a spiral shape, as waves launched interior to
+the planet outpace it and waves launched outside lag behind.
 
-Nam dui ligula, fringilla a, euismod sodales, sollici- tudin vel, wisi.
-Morbi auctor lorem non justo, nam lacus libero, pretium at, lobortis vitae.
-Donec aliquet, tortor sed accumsan bibendum, erat ligula aliquet magna.
-Morbi ac orci et nisl hendrerit mollis, suspendisse ut massa, cras nec ante.
-Pellentesque a nulla cum sociis natoque penatibus et magnis dis parturient.
-Aliquam tincidunt urna, nulla ullamcorper vestibulum turpis.
-Pellentesque cursus luctus mauris \citep{Luger2021}.
+Most simulations of protoplanetary disks assume that the sound speed is constant throughout the disk,
+however this may not always be the case. An interior, truncated disk that is misaligned to the main disk can
+cast shadows on its surface, locally lowering the temperature and sound speed. Shadows can have two effects:
+\begin{enumerate}
+    \item Deflecting waves launched by a planet (similar to Snell's Law).
+    \item Launching its own waves because the disk now has a pressure gradient in the $\phi$ direction.
+\end{enumerate}
 
-\bibliography{bib}
+Both effects will affect an observation of a planet in a shadowed disk. In this paper we will simulate
+such a shadowed disk, subtract the perturbations due to the shadow, and compare the spiral to the
+shadowless case.
+
+\section{Methods}
+\label{sec:methods}
+\subsection{Simulation setup}
+\label{subsec:setup}
+We use the magneto-hydrodynamics code Athena++\footnote{\url{https://github.com/PrincetonUniversity/athena}{https://github.com/PrincetonUniversity/athena}} 
+\citep{stone2020} version 21.0 \citep{athena++developmentteam2021} to simulate a 2D gas disk. The simulation was set up in cylindrical coordinates with 149
+cells in the $\ln{r}$ direction with $r \in [0.4, 2.5]$ and 512 cells in the $\phi \in [-\pi, \pi]$ direction. The inner and outer boundaries have a user-defined fixed boundary
+condition and the azimuthal boundary has a periodic boundary condition to ensure material can orbit the central star indefinitly. The dimensionality of the problem
+is set up so that all masses are in $M_\odot$, distances are in AU, and times are in year/$2\pi$. This means that a planet placed in a circular orbit at $r=1$
+will have an orbital period of $2\pi$.
+
+The disk is set up so that $\rho = 1$ at $r=1$ and has the radial profile $\rho \propto r^{-1}$. The gas in the disk initially moves at the local keplerian velocity.
+A shadow on the disk is prescribed by setting the sound speed -- analogous to setting the temperature as 
+\begin{equation}
+    c_s = \frac{\partial P}{\partial \rho} \propto T
+\end{equation}
+We ensure that the shadow does not move with the gas in its orbit by setting the cooling timescale to $10^{-6} \ll 1$. The sounds speed is essentially reset each time
+the grid is updated.
+
+The shadow is parameterized by three numbers: \texttt{h\_reduced\_factor}, \texttt{half\_shadow}, and \texttt{half\_unshadow},
+which we will write here as $h$, $a$, and $b$, respectively. The former is the dimensionless magnitude of the sound speed reduction
+and the latter two are the half-width of the regions with constant sound speed (i.e. no the transition region) and have
+units of radians.
+
+The sound speed outside the shadowed region can be computed
+\begin{equation}
+    c_{\rm un} = c_0 r^{-1}
+\end{equation}
+
+where $c_0 = 0.1$ is the sound speed at $r=1$. The effect due to the shadow is parameterized by the equation
+\begin{equation}
+    c_{\rm sh} = c_{\rm un} H(\phi)
+\end{equation}
+
+where 
+
+\begin{equation*}
+    \label{eq:H}
+    \begin{array}{cccc}
+        H = & h & \text{if} & (|\phi|~\%~\pi) \le a  \\
+            & 1 & \text{if} & (\left | |\phi| - \frac{\pi}{2}\right |~\%~\pi) \le b \\
+            & h + (1-h) \sin{\left ( \frac{\pi}{2}  \frac{|\phi| - b}{\frac{\pi}{2} - a - b} \right )} & & \text{otherwise}
+    \end{array}
+\end{equation*}
+
+
+\begin{figure}
+    % \includegraphics[width=0.5\textwidth]{}
+    \caption{Initial gas temperature maps for our three setups. {\bf Left:} In the case where there is no shadow the temperature is azimuthally symmetric.
+    {\bf Center:} In our ``narrow'' case we see a deep shadow covers a narrow region of the disk. This is analogous to a thin, optically thick inner disk.
+    {\bf Right:} In our ``wide'' case we see a much shallower shadow that covers a significant portion of the disk. In this case $a,b=0$ and the third line of
+    Equation \ref{eq:H} becomes a sine function for all $\phi$.
+    }
+\end{figure}
+
+\begin{table}
+    \begin{tabular}{cccc}
+        \hline
+        \hline
+        Name & Width & $c_{sh}/c_{un}$ & $m_p$ \\
+        \texttt{no\_shadow} & None & 0 & $10^{-4}$ \\
+        
+        \hline
+
+
+    \end{tabular}
+\end{table}
+
+
+
+
+\bibliography{syw,spirals}
 
 \end{document}

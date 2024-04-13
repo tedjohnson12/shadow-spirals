@@ -46,19 +46,20 @@ We use the magneto-hydrodynamics code Athena++\footnote{\url{https://github.com/
 cells in the $\ln{r}$ direction with $r \in [0.4, 2.5]$ and 512 cells in the $\phi \in [-\pi, \pi]$ direction. The inner and outer boundaries have a user-defined fixed boundary
 condition and the azimuthal boundary has a periodic boundary condition to ensure material can orbit the central star indefinitly. The dimensionality of the problem
 is set up so that all masses are in $M_\odot$, distances are in AU, and times are in year/$2\pi$. This means that a planet placed in a circular orbit at $r=1$
-will have an orbital period of $2\pi$.
+will have an orbital period of $2\pi$. We chose a planet mass of $10^{-4}$ in order to create a detectable effect in the presence of noise from the shadow and
+to not stray too far from the linear spiral regime.
 
 The disk is set up so that $\rho = 1$ at $r=1$ and has the radial profile $\rho \propto r^{-1}$. The gas in the disk initially moves at the local keplerian velocity.
 A shadow on the disk is prescribed by setting the sound speed -- analogous to setting the temperature as 
 \begin{equation}
     c_s = \frac{\partial P}{\partial \rho} \propto T
 \end{equation}
-We ensure that the shadow does not move with the gas in its orbit by setting the cooling timescale to $10^{-6} \ll 1$. The sounds speed is essentially reset each time
+We ensure that the shadow does not move with the gas in its orbit by setting the cooling timescale to $10^{-6} \ll 1$. Essentially, the temperature is reset each time
 the grid is updated.
 
 The shadow is parameterized by three numbers: \texttt{h\_reduced\_factor}, \texttt{half\_shadow}, and \texttt{half\_unshadow},
 which we will write here as $h$, $a$, and $b$, respectively. The former is the dimensionless magnitude of the sound speed reduction
-and the latter two are the half-width of the regions with constant sound speed (i.e. no the transition region) and have
+and the latter two are the half-width of the regions with constant sound speed (i.e. not the transition region) and have
 units of radians.
 
 The sound speed outside the shadowed region can be computed
@@ -76,11 +77,29 @@ where
 \begin{equation*}
     \label{eq:H}
     \begin{array}{cccc}
-        H = & h & \text{if} & (|\phi|~\%~\pi) \le a  \\
-            & 1 & \text{if} & (\left | |\phi| - \frac{\pi}{2}\right |~\%~\pi) \le b \\
-            & h + (1-h) \sin{\left ( \frac{\pi}{2}  \frac{|\phi| - b}{\frac{\pi}{2} - a - b} \right )} & & \text{otherwise}
+        H = & h & \text{if} & |\sin{\phi}| \le \sin{a}  \\
+            & 1 & \text{if} & |\cos{\phi}| \le \sin{b} \\
+            & h + \frac{1-h}{2} \left (  1-\cos{\left ( \frac{2 \pi | \phi + m\pi |}{\pi - 2a - 2b}  \right )  } \right ) & & \text{otherwise}
     \end{array}
 \end{equation*}
+and
+\begin{equation}
+    \begin{array}{cccc}
+        m = & 1 & \text{if} & \phi < -\frac{\pi}{2} \\
+            & -1 & \text{if} & \phi > \frac{\pi}{2} \\
+            & 0 & & \text{otherwise}
+    \end{array}
+\end{equation}
+Figure \ref{fig:cs} shows the sound speed profiles used in this work.
+
+\begin{figure}
+    \begin{center}
+        \includegraphics[width=3.5in]{figures/sound_speed.pdf}
+        \caption{Sound speed as a function of azimuthal angle. Here we show how the sound speed is prescribed in our two science cases. The cases
+        share a minimum and maximum sound speed, but the transitions between these values are very different.}    
+    \end{center}
+    \label{fig:cs}
+\end{figure}
 
 
 \begin{figure}
@@ -90,19 +109,34 @@ where
     {\bf Right:} In our ``wide'' case we see a much shallower shadow that covers a significant portion of the disk. In this case $a,b=0$ and the third line of
     Equation \ref{eq:H} becomes a sine function for all $\phi$.
     }
+    \label{fig:setup}
 \end{figure}
 
+We will investigate two scenarios:
+\begin{enumerate}
+    \item A narrow shadow, analogous to that produced by a thin inner disk with a scale height of $\frac{h}{r} = 0.05$. We chose a value of $a$ based on the assumption that the inner disk
+        is optically thick up to 3 scale heights. We call this case ``narrow''.
+    \item A wide shadow, like that produced by a diffuse inner disk with a very high scale height. In this limit the temperature is simply a sinusoidal function of $\phi$. We call this case ``wide''.
+\end{enumerate}
+In order to adequately investigate these scenarios we must run a total of five simulations, described in Table \ref{tab:scenarios}. For each of our two science cases we run an
+additional simulation with no planet in order to subtract out effects that are purely due to the shadow. Finally, we also run a control simulation without any shadow.
+Figure \ref{fig:setup} shows the initial condition of each case described here.
+
+
 \begin{table}
-    \begin{tabular}{cccc}
+    \label{tab:scenarios}
+    \begin{tabular}{ccccc}
         \hline
         \hline
-        Name & Width & $c_{sh}/c_{un}$ & $m_p$ \\
-        \texttt{no\_shadow} & None & 0 & $10^{-4}$ \\
-        
+        Name & $a$ & $b$ & $h$ & $m_p$ \\
+        \texttt{no\_shadow} & - & - & 0 & $10^{-5}$ \\
+        \texttt{narrow\_with} & 0.15 & 1.32 & 0.9 & $10^{-5}$ \\
+        \texttt{narrow\_without} & 0.15 & 1.32 & 0.9 & 0 \\
+        \texttt{wide\_with} & 0 & 0 & 0.9 & $10^{-5}$ \\
+        \texttt{wide\_with} & 0 & 0 & 0.9 & 0 \\
         \hline
-
-
     \end{tabular}
+    \caption{Simulation parameters. The planet mass of $10^{-5}$ is analogous to a planet three times as massive as Earth.}
 \end{table}
 
 

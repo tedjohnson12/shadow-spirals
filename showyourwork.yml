@@ -35,10 +35,44 @@ datasets:
 
 # Custom file dependencies
 dependencies:
-  # src/scripts/my_script.py:
-  #   - src/data/dataset_for_my_script.dat
-  # src/tex/ms.tex:
-  #   - src/tex/stylesheet.tex
+  src/scripts/plot_zeta_wide.py:
+    - src/scripts/read.py
+    - src/scripts/spirals.py
+    - src/scripts/colors.py
+    - src/data/no_shadow.tar.gz
+    - src/data/wide_with.tar.gz
+    - src/data/wide_without.tar.gz
+  src/scripts/plot_zeta_narrow.py:
+    - src/scripts/read.py
+    - src/scripts/spirals.py
+    - src/scripts/colors.py
+    - src/data/no_shadow.tar.gz
+    - src/data/narrow_with.tar.gz
+    - src/data/narrow_without.tar.gz
+  src/scripts/plot_spirals_wide.py:
+    - src/scripts/read.py
+    - src/scripts/spirals.py
+    - src/data/no_shadow.tar.gz
+    - src/data/wide_with.tar.gz
+    - src/data/wide_without.tar.gz
+  src/scripts/plot_spirals_narrow.py:
+    - src/scripts/read.py
+    - src/scripts/spirals.py
+    - src/data/no_shadow.tar.gz
+    - src/data/narrow_with.tar.gz
+    - src/data/narrow_without.tar.gz
+  src/scripts/plot_initial.py:
+    - src/scripts/read.py
+    - src/data/no_shadow.tar.gz
+    - src/data/narrow_without.tar.gz
+    - src/data/wide_without.tar.gz
+  src/scripts/plot_final.py:
+    - src/scripts/read.py
+    - src/data/no_shadow.tar.gz
+    - src/data/narrow_with.tar.gz
+    - src/data/narrow_without.tar.gz
+    - src/data/wide_with.tar.gz
+    - src/data/wide_without.tar.gz
 
 # Name of the `.tex` manuscript and corresponding `.pdf` article
 ms_name: ms

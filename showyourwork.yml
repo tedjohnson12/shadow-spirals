@@ -25,9 +25,13 @@ dag:
 
 # Externally-hosted datasets, e.g. on Zenodo
 datasets:
-  # 10.5281/zenodo.6468327:
-  #   contents:
-  #     TOI640b.json: src/data/TOI640b.json
+  10.5281/zenodo.10969804:
+    contents:
+      no_shadow.tar.gz: src/data/no_shadow.tar.gz
+      narrow_with.tar.gz: src/data/narrow_with.tar.gz
+      narrow_without.tar.gz: src/data/narrow_without.tar.gz
+      wide_with.tar.gz: src/data/wide_with.tar.gz
+      wide_without.tar.gz: src/data/wide_without.tar.gz
 
 # Custom file dependencies
 dependencies:

@@ -4,3 +4,4 @@ dependencies:
   - pip:
       - matplotlib==3.8
       - h5py
+      - scipy

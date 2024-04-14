@@ -3,7 +3,10 @@ Functions to find spirals
 """
 from typing import Tuple
 import numpy as np
+from scipy.integrate import simpson
+from scipy.optimize import newton
 
+from plot_sound_speed import get_sound_speed
 
 SOUND_SPEED = 0.1
 
@@ -134,3 +137,42 @@ def reconstruct(r,phi):
             is_after = index > i
             _phi = np.where(is_after,_phi - 2*np.pi,_phi)
         return r, _phi
+    
+def eval_lhs(_phi_planet,phi_end, h, a, b, dphi= 2*np.pi / 10000):
+    """
+    Evaluate the LHS of the cot zeta equality
+    """
+    n = int(np.abs(phi_end - _phi_planet)/ dphi)
+    _phi = np.linspace(_phi_planet, phi_end, n)
+    __phi = _phi % np.pi
+    assert np.all(__phi <= np.pi)
+    assert np.all(__phi >= -np.pi)
+    cs = SOUND_SPEED*get_sound_speed(__phi, h, a, b)
+    try:
+        return simpson(cs,_phi)
+    except ValueError:
+        return 0
+
+def eval_rhs(r):
+    """
+    Evaluate the RHS of the cot zeta equality
+    """
+    return np.abs(r + 2/np.sqrt(r) - 3)
+
+def get_best_phi(r,_phi_planet, h, a, b,guess = 1):
+    def fun(phi):
+        return eval_lhs(_phi_planet,phi, h, a, b) - eval_rhs(r)
+    k = 1 if r < 1 else -1
+    try:
+        return newton(fun, guess) * k
+    except RuntimeError:
+        return np.nan
+
+def phi_peak_analytic_shadow(r:np.ndarray,_phi_planet:float,h:float,a:float,b:float)->np.ndarray:
+    return np.array([get_best_phi(_r,_phi_planet,h,a,b) for _r in r])
+    
+def zeta_analytic_shadow(r:np.ndarray,_phi_planet:float,h:float,a:float,b:float,ndiff:int)->Tuple[np.ndarray,np.ndarray]:
+    _phi = phi_peak_analytic_shadow(r,_phi_planet,h,a,b)
+    logr, dphidr = central_difference(np.log(r),_phi,ndiff)
+    zeta = np.arctan(np.abs(1/dphidr))
+    return logr, zeta

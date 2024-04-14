@@ -221,7 +221,8 @@ to within 0.1 radians of this guess.
         \script{plot_zeta_wide.py}
         \caption{
             Same as Figure \ref{fig:zeta_narrow} but for the wide case. Note that the variations in the inset are much more continuous than in the
-            narrow case, and have a much larger amplitude.
+            narrow case, and have a much larger amplitude. Variations also evident interior to the planet, but the features are not as long-lived
+            as those outside.
         }
         \label{fig:zeta_wide}
     \end{center}
@@ -231,10 +232,60 @@ The shape of a spiral can be parameterized by its initial condition $\phi(r_0)$ 
 is defined as
 \begin{equation}
     \cot \zeta = \frac{d\phi}{d \ln r}
+    \label{zeta_def}
 \end{equation}
 
 according to \citet{zhu2022}. We use a central difference scheme to take the numerical derivative of $\phi_{\rm peak}$ with respect to $\ln r$.
+\citet{zhu2022} also provides an analytic solution in the limit that the wave has propagated far enough away from the planet:
 
+\begin{equation}
+    \zeta = \arctan |(\Omega_{\rm pat} - \Omega)r/c_{\rm s}|
+\end{equation}
+
+where $\Omega$ is the local Keplerian frequency and $\Omega_{\rm pat}$ is the Keplerian frequency at the
+radius from which the spiral is launched. As we are only considering circular orbits we see that 
+$\Omega_{\rm pat} = \Omega(r=1)$ and the pitch angle reduces to
+
+\begin{equation}
+    \cot \zeta = |(1-r^{-3/2}) r/c_{\rm s}|
+    \label{eq:zeta_omega}
+\end{equation}
+
+We plot this analytic case against our numerical results in Figures \ref{fig:zeta_narrow} \& \ref{fig:zeta_wide}. While the simulation with
+no shadow matches this solution very well we see that both shadowed cases display oscillations -- particularly far outside the planet's orbit.
+We can see that if $r$ is held constant then $\zeta$ is purely a function of the sounds speed $c_{\rm s}$. We can set
+Equations \ref{eq:zeta_def} \& \ref{eq:zeta_omega} equal to each other to find
+
+\begin{equation}
+    \frac{d\phi}{d r} = \frac{1-r^{-3/2}}{c_{\rm s}}
+\end{equation}
+
+where we have removed the log from the differential and divided out the additional factor of $r$. We can separate the differential to see
+\begin{equation}
+    \int_{\phi_p}^{\phi_f} c_{\rm s} d \phi = \int_{1}^{r_f} (1-r^{-3/2}) d r
+    \label{eq:analytic_shadow}
+\end{equation}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\textwidth]{figures/spiral_shape_analytic.pdf}
+    \caption{
+        Analytic spiral curves for a variety of situations. Here we consider both the narrow and wide cases for multiple values of $h$.
+        The $h=0.9$ case which we simulate numerically very nearly matches the shadowless case, shown in black. In order to get
+        variations similar to those seen in our simulations we have to set $h$ to be much less than 1.
+    }
+    \label{fig:analytic_spiral}
+    \script{plot_sound_speed_analytic.py}
+\end{figure}
+
+$c_{\rm s}(\phi)$ is non-trivial to integrate by hand, but can be done very easily numerically. We solve Equation \ref{eq:analytic_shadow}
+using the Newton-Raphson method to find $\phi_f$ for a given $r_f$. Figure \ref{fig:analytic_spiral} shows that the sound speed variations
+present in our simulations are insufficient to produce the spiral shapes we observe. Therefore, there must be some secondary effect not accounted for
+in the analytic approximation that is causing these variations. Likely, it is some interaction between the planet's spiral and spirals caused by the
+shadow; we explore this in Section \ref{subsec:spiral_shadow}.
+
+\subsection{Spirals launched by the shadow}
+\label{subsec:spiral_shadow}
 
 
 

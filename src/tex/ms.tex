@@ -41,7 +41,7 @@ shadowless case.
 \label{sec:methods}
 \subsection{Simulation setup}
 \label{subsec:setup}
-We use the magneto-hydrodynamics code Athena++\footnote{\url{https://github.com/PrincetonUniversity/athena}{https://github.com/PrincetonUniversity/athena}} 
+We use the magneto-hydrodynamics code Athena++\footnote{\url{https://github.com/PrincetonUniversity/athena}} 
 \citep{stone2020} version 21.0 \citep{athena++developmentteam2021} to simulate a 2D gas disk. The simulation was set up in cylindrical coordinates with 149
 cells in the $\ln{r}$ direction with $r \in [0.4, 2.5]$ and 512 cells in the $\phi \in [-\pi, \pi]$ direction. The inner and outer boundaries have a user-defined fixed boundary
 condition and the azimuthal boundary has a periodic boundary condition to ensure material can orbit the central star indefinitly. The dimensionality of the problem
@@ -98,19 +98,21 @@ Figure \ref{fig:cs} shows the sound speed profiles used in this work.
         \caption{Sound speed as a function of azimuthal angle. Here we show how the sound speed is prescribed in our two science cases. The cases
         share a minimum and maximum sound speed, but the transitions between these values are very different.}    
     \end{center}
+    \script{plot_sound_speed.py}
     \label{fig:cs}
 \end{figure}
 
 
-\begin{figure}
-    % \includegraphics[width=0.5\textwidth]{}
-    \caption{Initial gas temperature maps for our three setups. {\bf Left:} In the case where there is no shadow the temperature is azimuthally symmetric.
-    {\bf Center:} In our ``narrow'' case we see a deep shadow covers a narrow region of the disk. This is analogous to a thin, optically thick inner disk.
+\begin{figure*}
+    \includegraphics[width=1.0\textwidth]{figures/initial_temperature.pdf}
+    \caption{Initial gas temperature maps for our three setups. Note that the radial axis is scaled logarithmically. {\bf Left:} In the case where there is no shadow the temperature is azimuthally symmetric.
+    {\bf Center:} In our ``narrow'' case we see a near-constant shadow covers a narrow region of the disk. This is analogous to a thin, optically thick inner disk.
     {\bf Right:} In our ``wide'' case we see a much shallower shadow that covers a significant portion of the disk. In this case $a,b=0$ and the third line of
     Equation \ref{eq:H} becomes a sine function for all $\phi$.
     }
     \label{fig:setup}
-\end{figure}
+    \script{plot_initial.py}
+\end{figure*}
 
 We will investigate two scenarios:
 \begin{enumerate}
@@ -138,6 +140,68 @@ Figure \ref{fig:setup} shows the initial condition of each case described here.
     \end{tabular}
     \caption{Simulation parameters. The planet mass of $10^{-5}$ is analogous to a planet three times as massive as Earth.}
 \end{table}
+
+\subsection{Simulation run}
+\label{subsec:sim_run}
+
+We ran each of the five simulations for 100 orbits ($t = 50\pi$) and output the simulation results as an HDF5 file every
+quarter orbit ($\Delta t = \frac{\pi}{2}$). The end state of each simulation is shown in Figure \ref{fig:end}.
+
+\begin{figure*}
+    \includegraphics[width=1.0\textwidth]{figures/final_density.pdf}
+    \caption{Final gas density anomaly maps for our five simulations. Note the patterns are dominated by
+    the rings created by the shadow. The radial axis is scaled logarithmically.
+    }
+    \label{fig:end}
+    \script{plot_final.py}
+\end{figure*}
+
+\subsection{Isolating planetary effects}
+It is clear in Figure \ref{fig:end} that the major deviations in our shadowed disk are due to the shadow rather than the planet. Programically determining
+the location of the planet's spiral peak is a non-trivial task. First, we determine the density anomaly $\Delta \rho = \rho - \rho_0$. In the regime where all perturbations
+are small we expect that
+\begin{equation}
+    \Delta \rho_{\rm planet} = \Delta \rho - \Delta \rho_{\rm shadow}
+    \label{eq:rho_planet}
+\end{equation}
+
+$\Delta \rho_{\rm shadow}$ is determined from our shadow-only simulations (\texttt{narrow\_without} and \texttt{wide\_without}). 
+
+Now that we have a density anomaly map we need to determine the location of the spiral peak (in $\phi$) as a function of $r$. Absent of shadow perturbations
+(i.e., in the \texttt{no\_shadow} case or if the subtraction in Equation \ref{eq:rho_planet} was perfect) this would be as simple as
+finding the value of $\phi$ that maximizes $\rho(\phi,r)$ for any given $r$. However, this is not true in the general case as there are additional
+effects that are only found in simulations containing both the planet and shadow. In order to ensure we don't find some other maximum we must constrain
+the domain of our search along the $\phi$ axis. One constraint we can utilize is that $\phi_{\rm peak}(r=1) = \phi_{\rm planet}$ as that is where the spiral is
+launched from. Since the spiral is a continuous function $\phi(r)$ (that is, its pitch angle is defined, see Section \ref{subsec:pitch}) we can assume that
+$\phi(r_i) \approx 2\phi(r_{i-1}) - \phi(r_{i-2})$. Therefore, we can restrict our search for $\phi_{\rm peak}$ based on an initial guess. We restrict searches
+to within 0.1 radians of this guess.
+
+\section{Results}
+\label{sec:results}
+
+\subsection{Spiral Morphology}
+
+\begin{figure*}
+    \script{plot_spirals_narrow.py}
+    \includegraphics[width=1.0\textwidth]{figures/spirals_narrow.pdf}
+    
+    \caption{
+        Spiral patterns observed after 99.25 orbits in the narrow shadow case. Shown is the density anomaly for every case.
+        The third panel from the left shows the residuals after subtracting the first panel from the second. Plotted on the two
+        rightmost panels are the locations identified as being at the peak of the spiral. Note that the color scale on the leftmost
+        two panels has been scaled so that all panels can share the same colorbar.
+    }
+    \label{fig:sp_narrow}
+\end{figure*}
+
+\begin{figure*}
+    \script{plot_spirals_wide.py}
+    \includegraphics[width=1.0\textwidth]{figures/spirals_wide.pdf}
+    \caption{ Same as Figure \ref{fig:sp_narrow} but for the wide shadow case.}
+    \label{fig:sp_wide}
+\end{figure*}
+
+
 
 
 

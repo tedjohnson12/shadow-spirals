@@ -73,7 +73,7 @@ for _ax, _title, _data, _scatter, _scale in zip(axes, TITLES, data, scatter, sca
     phi_peak = spirals.find_peaks(r,phi,_data, PHI_PLANET, WIDTH)
     if _scatter:
         _ax.scatter(phi_peak,logr_mid*np.log(10),s=3,c='k',marker='.')
-ax_shadow_only.text(-0.8*np.pi,0.22,f'Scaled by {scale:.1f}',fontdict={'size':12})
+ax_shadow_only.text(-0.8*np.pi,0.52,f'Scaled by {scale:.1f}',fontdict={'size':12})
 ax_shadow_only.set_ylabel('$\\ln (r)$',fontdict={'size':14})
 fig.text(0.5,0.07,'$\\phi$',fontdict={'size':14})
 fig.text(0.14,0.06,f'$t = {0.25 * INDEX:.2f}~P_{{orb}}$',fontdict={'size':14})

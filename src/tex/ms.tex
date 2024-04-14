@@ -165,7 +165,8 @@ are small we expect that
     \label{eq:rho_planet}
 \end{equation}
 
-$\Delta \rho_{\rm shadow}$ is determined from our shadow-only simulations (\texttt{narrow\_without} and \texttt{wide\_without}). 
+$\Delta \rho_{\rm shadow}$ is determined from our shadow-only simulations (\texttt{narrow\_without} and \texttt{wide\_without}). See Figures \ref{fig:sp_narrow}
+\& \ref{fig:sp_wide} for this residual in the narrow and wide cases, respectively.
 
 Now that we have a density anomaly map we need to determine the location of the spiral peak (in $\phi$) as a function of $r$. Absent of shadow perturbations
 (i.e., in the \texttt{no\_shadow} case or if the subtraction in Equation \ref{eq:rho_planet} was perfect) this would be as simple as
@@ -175,11 +176,6 @@ the domain of our search along the $\phi$ axis. One constraint we can utilize is
 launched from. Since the spiral is a continuous function $\phi(r)$ (that is, its pitch angle is defined, see Section \ref{subsec:pitch}) we can assume that
 $\phi(r_i) \approx 2\phi(r_{i-1}) - \phi(r_{i-2})$. Therefore, we can restrict our search for $\phi_{\rm peak}$ based on an initial guess. We restrict searches
 to within 0.1 radians of this guess.
-
-\section{Results}
-\label{sec:results}
-
-\subsection{Spiral Morphology}
 
 \begin{figure*}
     \script{plot_spirals_narrow.py}
@@ -200,6 +196,47 @@ to within 0.1 radians of this guess.
     \caption{ Same as Figure \ref{fig:sp_narrow} but for the wide shadow case.}
     \label{fig:sp_wide}
 \end{figure*}
+
+\section{Results}
+\label{sec:results}
+
+\subsection{Spiral Morphology}
+
+\begin{figure}
+    \begin{center}
+        \includegraphics[width=0.5\textwidth]{figures/zeta_narrow.pdf}
+        \script{plot_zeta_narrow.py}
+        \caption{
+            The pitch angle $\zeta$ for the narrow case. Far from the planet there is some discontinuous variability introduced by the shadow.
+            The planet-only case fits well to the analytic approximation.
+        }
+        \label{fig:zeta_narrow}
+    \end{center}
+\end{figure}
+
+
+\begin{figure}
+    \begin{center}
+        \includegraphics[width=0.5\textwidth]{figures/zeta_wide.pdf}
+        \script{plot_zeta_wide.py}
+        \caption{
+            Same as Figure \ref{fig:zeta_narrow} but for the wide case. Note that the variations in the inset are much more continuous than in the
+            narrow case, and have a much larger amplitude.
+        }
+        \label{fig:zeta_wide}
+    \end{center}
+\end{figure}
+
+The shape of a spiral can be parameterized by its initial condition $\phi(r_0)$ and by its pitch angle $\zeta$. Pitch angle
+is defined as
+\begin{equation}
+    \cot \zeta = \frac{d\phi}{d \ln r}
+\end{equation}
+
+according to \citet{zhu2022}. We use a central difference scheme to take the numerical derivative of $\phi_{\rm peak}$ with respect to $\ln r$.
+
+
+
 
 
 

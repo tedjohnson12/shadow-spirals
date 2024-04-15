@@ -13,7 +13,7 @@ import paths
 
 DATA_PATH = paths.data
 IMIN = 0
-IMAX = 400
+IMAX = 600
 
 def get_case_name(shadow:str, planet:bool)->str:
     """

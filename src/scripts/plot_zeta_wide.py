@@ -45,7 +45,7 @@ fig = plt.figure(figsize=(4,4))
 ax = fig.add_subplot()
 
 ax.scatter(sh_logr,sh_zeta,s=3,c=colors.teal,marker='o',label='Shadow')
-ax.scatter(pl_logr,pl_zeta,s=3,c=colors.dark_orange,marker='o',label='No shadow')
+ax.scatter(pl_logr,pl_zeta,s=3,c=colors.slate,marker='o',label='No shadow')
 ax.plot(pl_logr,spirals.zeta_analytic(np.exp(pl_logr)),c=colors.yellow,ls='--',label='Analytic')
 # _r = np.linspace(0.4,2.5,1000)
 # _r = _r[np.abs(_r)>0.2]
@@ -57,7 +57,7 @@ ax.legend(fontsize=14,loc=(0.3,0.6))
 
 inax = ax.inset_axes([0.45,0.35,0.5,0.2],xlim=(0.4,0.9),ylim=(0.03,0.25))
 inax.scatter(sh_logr,sh_zeta,s=3,c=colors.teal,marker='o',label='Shadow')
-inax.scatter(pl_logr,pl_zeta,s=3,c=colors.dark_orange,marker='o',label='No shadow')
+inax.scatter(pl_logr,pl_zeta,s=3,c=colors.slate,marker='o',label='No shadow')
 inax.plot(pl_logr,spirals.zeta_analytic(np.exp(pl_logr)),c=colors.yellow,ls='--',label='Analytic')
 # inax.plot(_logr, zeta,c=colors.yellow,ls='-',label='Shadow')
 inax.set_xticks([])

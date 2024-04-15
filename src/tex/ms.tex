@@ -51,13 +51,12 @@ We use the magneto-hydrodynamics code Athena++\footnote{\url{https://github.com/
 cells in the $\ln{r}$ direction with $r \in [0.4, 2.5]$ and 512 cells in the $\phi \in [-\pi, \pi]$ direction. The inner and outer boundaries have a user-defined fixed boundary
 condition and the azimuthal boundary has a periodic boundary condition to ensure material can orbit the central star indefinitly. The dimensionality of the problem
 is set up so that all masses are in $M_\odot$, distances are in AU, and times are in year/$2\pi$. This means that a planet placed in a circular orbit at $r=1$
-will have an orbital period of $2\pi$. We chose a planet mass of $\mpl$ in order to create a detectable effect in the presence of noise from the shadow and
-to not stray too far from the linear spiral regime.
+will have an orbital period of $2\pi$. We chose a planet mass of $\mpl$ in order to stay in the linear spiral regime.
 
 The disk is set up so that $\rho = 1$ at $r=1$ and has the radial profile $\rho \propto r^{-1}$. The gas in the disk initially moves at the local keplerian velocity.
 A shadow on the disk is prescribed by setting the sound speed -- analogous to setting the temperature as 
 \begin{equation}
-    c_s = \frac{\partial P}{\partial \rho} \propto T
+    c_s = \sqrt{\frac{\partial P}{\partial \rho}} \propto \sqrt{T}
 \end{equation}
 We ensure that the shadow does not move with the gas in its orbit by setting the cooling timescale to $10^{-6} \ll 1$. Essentially, the temperature is reset each time
 the grid is updated.
@@ -79,8 +78,7 @@ where $c_0 = 0.1$ is the sound speed at $r=1$. The effect due to the shadow is p
 
 where 
 
-\begin{equation*}
-    \label{eq:H}
+\begin{equation*}    
     \begin{array}{cccc}
         H = & h & \text{if} & |\sin{\phi}| \le \sin{a}  \\
             & 1 & \text{if} & |\cos{\phi}| \le \sin{b} \\
@@ -94,6 +92,7 @@ and
             & -1 & \text{if} & \phi > \frac{\pi}{2} \\
             & 0 & & \text{otherwise}
     \end{array}
+    \label{eq:H}
 \end{equation}
 Figure \ref{fig:cs} shows the sound speed profiles used in this work.
 
@@ -245,7 +244,7 @@ according to \citet{zhu2022}. We use a central difference scheme to take the num
 \citet{zhu2022} also provides an analytic solution in the limit that the wave has propagated far enough away from the planet:
 
 \begin{equation}
-    \zeta = \arctan |(\Omega_{\rm pat} - \Omega)r/c_{\rm s}|
+    \zeta = \text{arccot}~|(\Omega_{\rm pat} - \Omega)r/c_{\rm s}|
 \end{equation}
 
 where $\Omega$ is the local Keplerian frequency and $\Omega_{\rm pat}$ is the Keplerian frequency at the
@@ -268,22 +267,23 @@ Equations \ref{eq:zeta_def} \& \ref{eq:zeta_omega} equal to each other to find
 
 where we have removed the log from the differential and divided out the additional factor of $r$. We can separate the differential to see
 \begin{equation}
-    \int_{\phi_p}^{\phi_f} c_{\rm s} d \phi = \int_{1}^{r_f} (1-r^{-3/2}) d r
+    \int_{\phi_p}^{\phi_f} c_{\rm s} d \phi = \int_{1}^{r_f} |1-r^{-3/2}| d r
     \label{eq:analytic_shadow}
 \end{equation}
 
-\begin{figure}
+\begin{figure*}
     \centering
-    \includegraphics[width=0.5\textwidth]{figures/spiral_shape_analytic.pdf}
+    \includegraphics[width=\textwidth]{figures/spiral_shape_analytic.pdf}
     \caption{
-        Analytic spiral curves for a variety of situations. Here we consider both the narrow and wide cases for multiple values of $h$.
+        Analytic spiral solutions for a variety of shadows. Here we consider both the narrow and wide cases for multiple values of $h$.
         The $h=0.9$ case which we simulate numerically very nearly matches the shadowless case, shown in black. In order to get
         variations similar to those seen in our simulations we have to set $h$ to be much less than 1. The region near the planet
-        has been cut out because the analytic treatment is not valid there.
+        has been cut out because the analytic treatment is not valid there. {\bf Left:} Location of spiral peaks. {\bf Right:}
+        $\zeta$ as a function of radius. Note that the pitch angle here never exceeds the pitch angle in the control case.
     }
     \label{fig:analytic_spiral}
     \script{plot_sound_speed_analytic.py}
-\end{figure}
+\end{figure*}
 
 Where $\phi_p$ is the azimuthal angle of the planet.
 $c_{\rm s}(\phi)$ is non-trivial to integrate by hand, but can be done very easily numerically. We solve Equation \ref{eq:analytic_shadow}
@@ -308,8 +308,8 @@ shadow; we explore this in Section \ref{subsec:effect_shadow}.
 
 It can be clearly seen in Figures \ref{fig:end}, \ref{fig:sp_narrow} \& \ref{fig:sp_wide} that the morphology of the disk is dominated
 by effects from the shadow, even for the very weak shadows we simulate in this work. In all simulations involving a shadow we observe a very clear
-ring pattern. These rings appear after $t\sim10~P_{\rm orb}$ and are static, as shown in Figure \ref{fig:slice} It is interesting to note that
-the innermost ring in the narrow case is a minimum, while in the wide case it is a maximum. Inside the innermost ring is a spiral region where gas
+ring pattern. These rings appear after $t\sim10~P_{\rm orb}$ and are static, as shown in Figure \ref{fig:slice}. It is interesting to note that
+the innermost ring in the narrow case is a maximum, while in the wide case it is a minimum. Inside the innermost ring is a spiral region where gas
 is interacting with the boundary.
 
 \pagebreak
@@ -335,6 +335,8 @@ We also leave much of the shadow parameter space unexplored. Future investigatio
         if instead a shadow is caused by an eclipsing interior binary then it would sweep around the disk on the timescale of the binary orbit.
     \item Limiting regimes of $h$. At what value do we start to see rings formed? What happens in the case of a very strong shadow?
     \item Different width regimes. At what point does the interior ring switch from a minimum to a maximum?
+    \item Convergence to a steady state. The timescales investigated in this work are very short and a simulation
+        that covers another order of magnitude in time could uncover new behavior.
 \end{enumerate}
 
 

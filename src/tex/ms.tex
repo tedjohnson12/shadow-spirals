@@ -10,11 +10,16 @@
 
 % Author list
 \author{Ted Johnson}
+\affiliation{UNLV}
+
+\newcommand{\mpl}{10^{-5}}
 
 \begin{abstract}
     The presence of a planet in a protoplanetary disk is known to launch pressure and
     density spirals in the disk. A disk that is shadowed (via an optically thick inclined inner disk)
-    will change the shape of these spirals.
+    will change the shape of these spirals as it modulates the speed of sound in the outer disk. The presence of a 
+    shadow also has major effects independent of the planet. We explore these effects using 2D disk simulations with
+    the MHD code Athena++.
 \end{abstract}
 
 \section{Introduction}
@@ -33,9 +38,9 @@ cast shadows on its surface, locally lowering the temperature and sound speed. S
     \item Launching its own waves because the disk now has a pressure gradient in the $\phi$ direction.
 \end{enumerate}
 
-Both effects will affect an observation of a planet in a shadowed disk. In this paper we will simulate
-such a shadowed disk, subtract the perturbations due to the shadow, and compare the spiral to the
-shadowless case.
+Both effects will affect an observation of a planet in a shadowed disk. In this paper we will describe our simulation
+of such a shadowed disk in Section \ref{sec:methods}, discuss the effects introduced by the shadow in Section \ref{sec:results},
+and suggest future investigations in section \ref{sec:conclusion}
 
 \section{Methods}
 \label{sec:methods}
@@ -46,7 +51,7 @@ We use the magneto-hydrodynamics code Athena++\footnote{\url{https://github.com/
 cells in the $\ln{r}$ direction with $r \in [0.4, 2.5]$ and 512 cells in the $\phi \in [-\pi, \pi]$ direction. The inner and outer boundaries have a user-defined fixed boundary
 condition and the azimuthal boundary has a periodic boundary condition to ensure material can orbit the central star indefinitly. The dimensionality of the problem
 is set up so that all masses are in $M_\odot$, distances are in AU, and times are in year/$2\pi$. This means that a planet placed in a circular orbit at $r=1$
-will have an orbital period of $2\pi$. We chose a planet mass of $10^{-4}$ in order to create a detectable effect in the presence of noise from the shadow and
+will have an orbital period of $2\pi$. We chose a planet mass of $\mpl$ in order to create a detectable effect in the presence of noise from the shadow and
 to not stray too far from the linear spiral regime.
 
 The disk is set up so that $\rho = 1$ at $r=1$ and has the radial profile $\rho \propto r^{-1}$. The gas in the disk initially moves at the local keplerian velocity.
@@ -107,7 +112,7 @@ Figure \ref{fig:cs} shows the sound speed profiles used in this work.
     \includegraphics[width=1.0\textwidth]{figures/initial_temperature.pdf}
     \caption{Initial gas temperature maps for our three setups. Note that the radial axis is scaled logarithmically. {\bf Left:} In the case where there is no shadow the temperature is azimuthally symmetric.
     {\bf Center:} In our ``narrow'' case we see a near-constant shadow covers a narrow region of the disk. This is analogous to a thin, optically thick inner disk.
-    {\bf Right:} In our ``wide'' case we see a much shallower shadow that covers a significant portion of the disk. In this case $a,b=0$ and the third line of
+    {\bf Right:} In our ``wide'' case we see the shadowing is more gradual and covers a significant portion of the disk. In this case $a,b=0$ and the third line of
     Equation \ref{eq:H} becomes a sine function for all $\phi$.
     }
     \label{fig:setup}
@@ -126,25 +131,25 @@ Figure \ref{fig:setup} shows the initial condition of each case described here.
 
 
 \begin{table}
-    \label{tab:scenarios}
     \begin{tabular}{ccccc}
         \hline
         \hline
         Name & $a$ & $b$ & $h$ & $m_p$ \\
-        \texttt{no\_shadow} & - & - & 0 & $10^{-5}$ \\
-        \texttt{narrow\_with} & 0.15 & 1.32 & 0.9 & $10^{-5}$ \\
+        \texttt{no\_shadow} & - & - & 0 & $\mpl$ \\
+        \texttt{narrow\_with} & 0.15 & 1.32 & 0.9 & $\mpl$ \\
         \texttt{narrow\_without} & 0.15 & 1.32 & 0.9 & 0 \\
-        \texttt{wide\_with} & 0 & 0 & 0.9 & $10^{-5}$ \\
+        \texttt{wide\_with} & 0 & 0 & 0.9 & $\mpl$ \\
         \texttt{wide\_with} & 0 & 0 & 0.9 & 0 \\
         \hline
     \end{tabular}
-    \caption{Simulation parameters. The planet mass of $10^{-5}$ is analogous to a planet three times as massive as Earth.}
+    \caption{Simulation parameters. The planet mass of $\mpl$ is analogous to a planet three times as massive as Earth.}
+    \label{tab:scenarios}
 \end{table}
 
 \subsection{Simulation run}
 \label{subsec:sim_run}
 
-We ran each of the five simulations for 100 orbits ($t = 50\pi$) and output the simulation results as an HDF5 file every
+We ran each of the five simulations for 100 orbits ($t = 200\pi$) and output the simulation results as an HDF5 file every
 quarter orbit ($\Delta t = \frac{\pi}{2}$). The end state of each simulation is shown in Figure \ref{fig:end}.
 
 \begin{figure*}
@@ -173,7 +178,7 @@ Now that we have a density anomaly map we need to determine the location of the 
 finding the value of $\phi$ that maximizes $\rho(\phi,r)$ for any given $r$. However, this is not true in the general case as there are additional
 effects that are only found in simulations containing both the planet and shadow. In order to ensure we don't find some other maximum we must constrain
 the domain of our search along the $\phi$ axis. One constraint we can utilize is that $\phi_{\rm peak}(r=1) = \phi_{\rm planet}$ as that is where the spiral is
-launched from. Since the spiral is a continuous function $\phi(r)$ (that is, its pitch angle is defined, see Section \ref{subsec:pitch}) we can assume that
+launched from. Since the spiral is a continuous function $\phi(r)$ (that is, its pitch angle is defined, see Section \ref{subsec:spiral_morph}) we can assume that
 $\phi(r_i) \approx 2\phi(r_{i-1}) - \phi(r_{i-2})$. Therefore, we can restrict our search for $\phi_{\rm peak}$ based on an initial guess. We restrict searches
 to within 0.1 radians of this guess.
 
@@ -201,6 +206,7 @@ to within 0.1 radians of this guess.
 \label{sec:results}
 
 \subsection{Spiral Morphology}
+\label{subsec:spiral_morph}
 
 \begin{figure}
     \begin{center}
@@ -232,7 +238,7 @@ The shape of a spiral can be parameterized by its initial condition $\phi(r_0)$ 
 is defined as
 \begin{equation}
     \cot \zeta = \frac{d\phi}{d \ln r}
-    \label{zeta_def}
+    \label{eq:zeta_def}
 \end{equation}
 
 according to \citet{zhu2022}. We use a central difference scheme to take the numerical derivative of $\phi_{\rm peak}$ with respect to $\ln r$.
@@ -253,7 +259,7 @@ $\Omega_{\rm pat} = \Omega(r=1)$ and the pitch angle reduces to
 
 We plot this analytic case against our numerical results in Figures \ref{fig:zeta_narrow} \& \ref{fig:zeta_wide}. While the simulation with
 no shadow matches this solution very well we see that both shadowed cases display oscillations -- particularly far outside the planet's orbit.
-We can see that if $r$ is held constant then $\zeta$ is purely a function of the sounds speed $c_{\rm s}$. We can set
+We can see that if $r$ is held constant then $\zeta$ is purely a function of the sound speed $c_{\rm s}$. We can set
 Equations \ref{eq:zeta_def} \& \ref{eq:zeta_omega} equal to each other to find
 
 \begin{equation}
@@ -272,25 +278,70 @@ where we have removed the log from the differential and divided out the addition
     \caption{
         Analytic spiral curves for a variety of situations. Here we consider both the narrow and wide cases for multiple values of $h$.
         The $h=0.9$ case which we simulate numerically very nearly matches the shadowless case, shown in black. In order to get
-        variations similar to those seen in our simulations we have to set $h$ to be much less than 1.
+        variations similar to those seen in our simulations we have to set $h$ to be much less than 1. The region near the planet
+        has been cut out because the analytic treatment is not valid there.
     }
     \label{fig:analytic_spiral}
     \script{plot_sound_speed_analytic.py}
 \end{figure}
 
+Where $\phi_p$ is the azimuthal angle of the planet.
 $c_{\rm s}(\phi)$ is non-trivial to integrate by hand, but can be done very easily numerically. We solve Equation \ref{eq:analytic_shadow}
 using the Newton-Raphson method to find $\phi_f$ for a given $r_f$. Figure \ref{fig:analytic_spiral} shows that the sound speed variations
 present in our simulations are insufficient to produce the spiral shapes we observe. Therefore, there must be some secondary effect not accounted for
-in the analytic approximation that is causing these variations. Likely, it is some interaction between the planet's spiral and spirals caused by the
-shadow; we explore this in Section \ref{subsec:spiral_shadow}.
+in the analytic approximation that is causing these variations. Likely, it is some interaction between the planet's spiral and effects caused by the
+shadow; we explore this in Section \ref{subsec:effect_shadow}.
 
-\subsection{Spirals launched by the shadow}
-\label{subsec:spiral_shadow}
+\subsection{Effects from the shadows}
+\label{subsec:effect_shadow}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\textwidth]{figures/slice.pdf}
+    \caption{
+        Density anomaly along $\phi = 0$ for every simulation output after the 25th orbit of the planet. A semi-transparent line
+        is plotted for each dataset, showing that the location of the rings is static, while their amplitudes do change.
+    }
+    \label{fig:slice}
+    \script{plot_slice.py}
+\end{figure}
+
+It can be clearly seen in Figures \ref{fig:end}, \ref{fig:sp_narrow} \& \ref{fig:sp_wide} that the morphology of the disk is dominated
+by effects from the shadow, even for the very weak shadows we simulate in this work. In all simulations involving a shadow we observe a very clear
+ring pattern. These rings appear after $t\sim10~P_{\rm orb}$ and are static, as shown in Figure \ref{fig:slice} It is interesting to note that
+the innermost ring in the narrow case is a minimum, while in the wide case it is a maximum. Inside the innermost ring is a spiral region where gas
+is interacting with the boundary.
+
+\pagebreak
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+We have demonstrated here that even a weak shadow can induce significant structural changes in a propoplanetary disk, as well as affect the spiral path of
+a planet embedded in the disk. We saw that the pitch angle of the planet's spiral was modulated by the shadow and that this modulation
+was much greater than expected by an analytical treatment. To observe the refraction expected analytically we would have to reduce $h$ to be much less than 1,
+and in turn we would have to increase $m_p$ greatly on order to still detect a spiral. A massive enough planet could open a gap in the disk that would interact with
+the rings created by the shadow.
+
+We also leave much of the shadow parameter space unexplored. Future investigations could study a variety of parameters, including
+\begin{enumerate}
+    \item The properties of the gas. We assume instant heating and cooling, but a longer timescale would mean that $c_{\rm s}$ is not
+        purely a function of $\phi$ as gas in the inner portions of the disk would travel a significant fraction of its orbit before cooling completely.
+    \item The radial temperature profile. We assume that $c_{\rm s}$ is not a function of $r$. However, the outer portions of the disk would realistically
+        be cooler.
+    \item Shadow shape. We assume shadows cast by a polar-inclined interior disk. However, if the misalignment is small then shadows on a disk can have a very different
+        shape -- one that is a function of both $\phi$ and $r$.
+    \item Motion of the shadow. In this study we simulated a static shadow -- analogous to that produced by an inclined interior disk. However,
+        if instead a shadow is caused by an eclipsing interior binary then it would sweep around the disk on the timescale of the binary orbit.
+    \item Limiting regimes of $h$. At what value do we start to see rings formed? What happens in the case of a very strong shadow?
+    \item Different width regimes. At what point does the interior ring switch from a minimum to a maximum?
+\end{enumerate}
 
 
-
-
-
+\section{Acknowledgements}
+This work makes use of the Athena++ MHD code version 21 \citep{athena++developmentteam2021}.
+This manuscript was typeset using the open-science software \showyourwork, which makes the entire manuscript, including each figure,
+completely reproducible by anyone with access to the git repository at \url{https://github.com/tedjohnson12/shadow-spirals}.
 
 
 
